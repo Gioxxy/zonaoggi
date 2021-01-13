@@ -14,7 +14,7 @@ class Response {
 
 class Request {
   
-  static  String _server = "https://www.trustmyads.com";
+  static  String _server = "https://www.trustmyads.com/zonaoggi";
 
   static Future<Response> get({String route = "", Map<String, String> params, Function(Response) onResponse}) async {
 
