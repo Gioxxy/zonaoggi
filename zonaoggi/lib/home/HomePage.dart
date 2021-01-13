@@ -19,7 +19,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   Future<List<void>> _req;
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey();
   int _selectedDayIndex = 0;
   BannerAd _bannerAd;
   int pinnedRegionId;
@@ -36,7 +35,8 @@ class _HomePageState extends State<HomePage> {
       });
   }
 
-  List<Day> _managePinnedRegion(List<Day> days){
+  List<Day> _managePinnedRegion(List<Day> days, SharedPreferences sharedPreferences){
+    pinnedRegionId = sharedPreferences.getInt('pinnedRegionId');
     if(pinnedRegionId != null) {
       for(Day day in days) {
         final Region pinnedRegion = day.regions.removeAt(day.regions.indexWhere((region) => region.id == pinnedRegionId));
@@ -64,13 +64,18 @@ class _HomePageState extends State<HomePage> {
       SharedPreferences.getInstance(),
       Future.delayed(Duration(milliseconds: 300))
     ])
-    ..then((value){
-      setState(() {
-        prefs.setInt('pinnedRegionId', region.id);
-        pinnedRegionId = region.id;
-        _listOpacity = 1;
+      ..then((value) {
+        setState(() {
+          if(region.id == pinnedRegionId){
+            prefs.setInt('pinnedRegionId', null);
+            pinnedRegionId = null;
+          } else {
+            prefs.setInt('pinnedRegionId', region.id);
+            pinnedRegionId = region.id;
+          }
+          _listOpacity = 1;
+        });
       });
-    });
 
   }
 
@@ -121,9 +126,7 @@ class _HomePageState extends State<HomePage> {
                   if(!snapshot.hasData || snapshot.data.length < 2)
                     return Center(child: CircularProgressIndicator());
 
-
-                  pinnedRegionId = (snapshot.data[1] as SharedPreferences).getInt('pinnedRegionId');
-                  List<Day> days = _managePinnedRegion(snapshot.data[0] as List<Day>);
+                  List<Day> days = _managePinnedRegion(snapshot.data[0] as List<Day>, snapshot.data[1] as SharedPreferences);
 
                   return Flexible(
                     fit: FlexFit.loose,
@@ -156,7 +159,6 @@ class _HomePageState extends State<HomePage> {
                             duration: Duration(milliseconds: 200),
                             opacity: _listOpacity,
                             child: ListView.builder(
-                              key: _listKey,
                               shrinkWrap: true,
                               physics: BouncingScrollPhysics(),
                               padding: EdgeInsets.only(top: 20, bottom: 50, right: 10, left: 10),
