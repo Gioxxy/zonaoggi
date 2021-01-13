@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1038153756658",
+    "project_id": "zonaoggi",
+    "storage_bucket": "zonaoggi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038153756658:android:99db46cfd0ab3a339a456b",
+        "android_client_info": {
+          "package_name": "com.ioxxy.zonaoggi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1038153756658-kvoq72ro4e4c680qta304cavjml01668.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdvUd0dIKr4Sp7laHNHoSyd6bk1Dp7sn8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1038153756658-kvoq72ro4e4c680qta304cavjml01668.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
