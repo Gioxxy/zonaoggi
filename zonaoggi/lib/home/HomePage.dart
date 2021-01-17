@@ -46,6 +46,13 @@ class _HomePageState extends State<HomePage> {
     return days;
   }
 
+  _selectTodayDate(List<Day> days){
+    _selectedDayIndex = days.indexWhere((day) => day.date.day == DateTime.now().day && day.date.month == DateTime.now().month && day.date.year == DateTime.now().year);
+    if (_selectedDayIndex == -1) {
+      _selectedDayIndex = 0;
+    }
+  }
+
   _onDayDidTap(int dayIndex){
     setState(() {
       _selectedDayIndex = dayIndex;
@@ -124,9 +131,13 @@ class _HomePageState extends State<HomePage> {
                 future: _req,
                 builder: (context, snapshot) {
                   if(!snapshot.hasData || snapshot.data.length < 2)
-                    return Center(child: CircularProgressIndicator());
+                    return Flexible(
+                      fit: FlexFit.tight,
+                      child: Center(child: CircularProgressIndicator())
+                    );
 
                   List<Day> days = _managePinnedRegion(snapshot.data[0] as List<Day>, snapshot.data[1] as SharedPreferences);
+                  _selectTodayDate(days);
 
                   return Flexible(
                     fit: FlexFit.loose,
@@ -137,6 +148,7 @@ class _HomePageState extends State<HomePage> {
                         Container(
                           height: 70,
                           child: ListView.builder(
+                            controller: ScrollController(initialScrollOffset: (130 * _selectedDayIndex).toDouble()),
                             scrollDirection: Axis.horizontal,
                             physics: BouncingScrollPhysics(),
                             padding: EdgeInsets.symmetric(horizontal: 10),
