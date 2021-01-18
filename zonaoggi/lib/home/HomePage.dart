@@ -2,6 +2,7 @@ import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zonaoggi/home/widgets/DayWidget.dart';
+import 'package:zonaoggi/utils/ADManager.dart';
 import 'package:zonaoggi/utils/AppColors.dart';
 
 import 'HomeManager.dart';
@@ -19,14 +20,14 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   Future<List<void>> _req;
-  int _selectedDayIndex = 0;
+  int _selectedDayIndex;
   BannerAd _bannerAd;
   int pinnedRegionId;
   double _listOpacity = 1;
 
   BannerAd buildBannerAd() {
     return BannerAd(
-      adUnitId: BannerAd.testAdUnitId,
+      adUnitId: AdManager.bannerAdUnitId,
       size: AdSize.banner,
       listener: (MobileAdEvent event) {
         if (event == MobileAdEvent.loaded) {
@@ -44,6 +45,14 @@ class _HomePageState extends State<HomePage> {
       }
     }
     return days;
+  }
+
+  _selectTodayDate(List<Day> days){
+    if(_selectedDayIndex == null)
+      _selectedDayIndex = days.indexWhere((day) => day.date.day == DateTime.now().day && day.date.month == DateTime.now().month && day.date.year == DateTime.now().year);
+      if (_selectedDayIndex == -1) {
+        _selectedDayIndex = 0;
+      }
   }
 
   _onDayDidTap(int dayIndex){
@@ -124,9 +133,13 @@ class _HomePageState extends State<HomePage> {
                 future: _req,
                 builder: (context, snapshot) {
                   if(!snapshot.hasData || snapshot.data.length < 2)
-                    return Center(child: CircularProgressIndicator());
+                    return Flexible(
+                      fit: FlexFit.tight,
+                      child: Center(child: CircularProgressIndicator())
+                    );
 
                   List<Day> days = _managePinnedRegion(snapshot.data[0] as List<Day>, snapshot.data[1] as SharedPreferences);
+                  _selectTodayDate(days);
 
                   return Flexible(
                     fit: FlexFit.loose,
@@ -137,6 +150,7 @@ class _HomePageState extends State<HomePage> {
                         Container(
                           height: 70,
                           child: ListView.builder(
+                            controller: ScrollController(initialScrollOffset: (130 * _selectedDayIndex).toDouble()),
                             scrollDirection: Axis.horizontal,
                             physics: BouncingScrollPhysics(),
                             padding: EdgeInsets.symmetric(horizontal: 10),
