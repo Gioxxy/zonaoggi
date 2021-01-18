@@ -2,6 +2,7 @@ import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zonaoggi/home/widgets/DayWidget.dart';
+import 'package:zonaoggi/utils/ADManager.dart';
 import 'package:zonaoggi/utils/AppColors.dart';
 
 import 'HomeManager.dart';
@@ -26,7 +27,7 @@ class _HomePageState extends State<HomePage> {
 
   BannerAd buildBannerAd() {
     return BannerAd(
-      adUnitId: BannerAd.testAdUnitId,
+      adUnitId: AdManager.bannerAdUnitId,
       size: AdSize.banner,
       listener: (MobileAdEvent event) {
         if (event == MobileAdEvent.loaded) {
