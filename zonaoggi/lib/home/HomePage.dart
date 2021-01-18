@@ -20,7 +20,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   Future<List<void>> _req;
-  int _selectedDayIndex = 0;
+  int _selectedDayIndex;
   BannerAd _bannerAd;
   int pinnedRegionId;
   double _listOpacity = 1;
@@ -48,10 +48,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   _selectTodayDate(List<Day> days){
-    _selectedDayIndex = days.indexWhere((day) => day.date.day == DateTime.now().day && day.date.month == DateTime.now().month && day.date.year == DateTime.now().year);
-    if (_selectedDayIndex == -1) {
-      _selectedDayIndex = 0;
-    }
+    if(_selectedDayIndex == null)
+      _selectedDayIndex = days.indexWhere((day) => day.date.day == DateTime.now().day && day.date.month == DateTime.now().month && day.date.year == DateTime.now().year);
+      if (_selectedDayIndex == -1) {
+        _selectedDayIndex = 0;
+      }
   }
 
   _onDayDidTap(int dayIndex){
