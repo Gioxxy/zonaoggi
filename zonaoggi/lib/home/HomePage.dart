@@ -22,9 +22,12 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<void>> _req;
   int _selectedDayIndex;
-  BannerAd _bannerAd;
-  int pinnedRegionId;
+  int _pinnedRegionId;
   double _listOpacity = 1;
+  bool showInterstitialAd = true;
+
+  BannerAd _bannerAd;
+  InterstitialAd _interstitialAd;
 
   BannerAd buildBannerAd() {
     return BannerAd(
@@ -37,11 +40,18 @@ class _HomePageState extends State<HomePage> {
       });
   }
 
+  InterstitialAd buildInterstitialAd(){
+    return InterstitialAd(
+      adUnitId: AdManager.interstitialAdUnitId,
+      listener: (MobileAdEvent event) {},
+    );
+  }
+
   List<DayModel> _managePinnedRegion(List<DayModel> days, SharedPreferences sharedPreferences){
-    pinnedRegionId = sharedPreferences.getInt('pinnedRegionId');
-    if(pinnedRegionId != null) {
+    _pinnedRegionId = sharedPreferences.getInt('pinnedRegionId');
+    if(_pinnedRegionId != null) {
       for(DayModel day in days) {
-        final RegionModel pinnedRegion = day.regions.removeAt(day.regions.indexWhere((region) => region.id == pinnedRegionId));
+        final RegionModel pinnedRegion = day.regions.removeAt(day.regions.indexWhere((region) => region.id == _pinnedRegionId));
         day.regions.insert(0, pinnedRegion);
       }
     }
@@ -62,7 +72,15 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  _onRegionDidTap(RegionModel region){
+  _onRegionDidTap(RegionModel region) async {
+    if (showInterstitialAd && await _interstitialAd.isLoaded()) {
+      showInterstitialAd = false;
+      _interstitialAd.show();
+      _interstitialAd = buildInterstitialAd()..load();
+    } else {
+      showInterstitialAd = true;
+    }
+
     Navigator.push(context, MaterialPageRoute(builder: (context) => RegionDetailPage(region)));
   }
 
@@ -80,12 +98,12 @@ class _HomePageState extends State<HomePage> {
     ])
       ..then((value) {
         setState(() {
-          if(region.id == pinnedRegionId){
+          if(region.id == _pinnedRegionId){
             prefs.setInt('pinnedRegionId', null);
-            pinnedRegionId = null;
+            _pinnedRegionId = null;
           } else {
             prefs.setInt('pinnedRegionId', region.id);
-            pinnedRegionId = region.id;
+            _pinnedRegionId = region.id;
           }
           _listOpacity = 1;
         });
@@ -103,12 +121,13 @@ class _HomePageState extends State<HomePage> {
 
     FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
     _bannerAd = buildBannerAd()..load();
-
+    _interstitialAd = buildInterstitialAd()..load();
   }
 
   @override
   void dispose() {
     _bannerAd?.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -182,7 +201,7 @@ class _HomePageState extends State<HomePage> {
                               itemBuilder: (context, index){
                                 return Region(
                                   region: days[_selectedDayIndex].regions[index],
-                                  isPinned: pinnedRegionId == days[_selectedDayIndex].regions[index].id,
+                                  isPinned: _pinnedRegionId == days[_selectedDayIndex].regions[index].id,
                                   onTap: (){
                                     _onRegionDidTap(days[_selectedDayIndex].regions[index]);
                                   },
