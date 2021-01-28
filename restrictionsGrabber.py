@@ -18,31 +18,43 @@ async def main():
 	await page.tap('#rcc-confirm-button')
 	days = len(await page.querySelectorAll('.swiper-slide'))
 
-	await page.tap('[color="giallo"]')
-	lis = await page.querySelectorAll('.css-16qr889-Item')
+	bianco = []
+	if await page.querySelector('[color="bianco"]'):
+		await page.tap('[color="bianco"]')
+		lis = await page.querySelectorAll('.css-16qr889-Item')
+		for li in lis:
+			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
+			desc = await page.evaluate('(el) => el.children[1].textContent', li)
+			bianco.append({"icon": icon.replace("fas ", ""), "desc": desc})
+
 	giallo = []
-	for li in lis:
-		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-		desc = await page.evaluate('(el) => el.children[1].textContent', li)
-		giallo.append({"icon": icon.replace("fas ", ""), "desc": desc})
+	if await page.querySelector('[color="giallo"]'):
+		await page.tap('[color="giallo"]')
+		lis = await page.querySelectorAll('.css-16qr889-Item')
+		for li in lis:
+			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
+			desc = await page.evaluate('(el) => el.children[1].textContent', li)
+			giallo.append({"icon": icon.replace("fas ", ""), "desc": desc})
 
-	await page.tap('[color="arancione"]')
-	lis = await page.querySelectorAll('.css-16qr889-Item')
 	arancione = []
-	for li in lis:
-		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-		desc = await page.evaluate('(el) => el.children[1].textContent', li)
-		arancione.append({"icon": icon.replace("fas ", ""), "desc": desc})
-
-	await page.tap('[color="rosso"]')
-	lis = await page.querySelectorAll('.css-16qr889-Item')
+	if await page.querySelector('[color="arancione"]'):
+		await page.tap('[color="arancione"]')
+		lis = await page.querySelectorAll('.css-16qr889-Item')
+		for li in lis:
+			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
+			desc = await page.evaluate('(el) => el.children[1].textContent', li)
+			arancione.append({"icon": icon.replace("fas ", ""), "desc": desc})
+	
 	rosso = []
-	for li in lis:
-		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-		desc = await page.evaluate('(el) => el.children[1].textContent', li)
-		rosso.append({"icon": icon.replace("fas ", ""), "desc": desc})
+	if await page.querySelector('[color="rosso"]'):
+		await page.tap('[color="rosso"]')
+		lis = await page.querySelectorAll('.css-16qr889-Item')
+		for li in lis:
+			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
+			desc = await page.evaluate('(el) => el.children[1].textContent', li)
+			rosso.append({"icon": icon.replace("fas ", ""), "desc": desc})
 
-	res = {"gialla": giallo, "arancione": arancione, "rossa": rosso}
+	res = {"bianca": bianco, "gialla": giallo, "arancione": arancione, "rossa": rosso}
 
 	f = open("restrictionsGrabberResult.json", "w", encoding='utf-8')
 	f.write(json.dumps(res, indent=2, ensure_ascii=False))
