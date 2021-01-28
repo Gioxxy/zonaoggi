@@ -1,13 +1,14 @@
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:zonaoggi/home/widgets/DayWidget.dart';
+import 'package:zonaoggi/home/widgets/Day.dart';
+import 'package:zonaoggi/regionDetails/RegionDetailsPage.dart';
 import 'package:zonaoggi/utils/ADManager.dart';
 import 'package:zonaoggi/utils/AppColors.dart';
 
 import 'HomeManager.dart';
 import 'HomeModel.dart';
-import 'widgets/RegionWidget.dart';
+import 'widgets/Region.dart';
 
 class HomePage extends StatefulWidget {
 
@@ -36,18 +37,18 @@ class _HomePageState extends State<HomePage> {
       });
   }
 
-  List<Day> _managePinnedRegion(List<Day> days, SharedPreferences sharedPreferences){
+  List<DayModel> _managePinnedRegion(List<DayModel> days, SharedPreferences sharedPreferences){
     pinnedRegionId = sharedPreferences.getInt('pinnedRegionId');
     if(pinnedRegionId != null) {
-      for(Day day in days) {
-        final Region pinnedRegion = day.regions.removeAt(day.regions.indexWhere((region) => region.id == pinnedRegionId));
+      for(DayModel day in days) {
+        final RegionModel pinnedRegion = day.regions.removeAt(day.regions.indexWhere((region) => region.id == pinnedRegionId));
         day.regions.insert(0, pinnedRegion);
       }
     }
     return days;
   }
 
-  _selectTodayDate(List<Day> days){
+  _selectTodayDate(List<DayModel> days){
     if(_selectedDayIndex == null)
       _selectedDayIndex = days.indexWhere((day) => day.date.day == DateTime.now().day && day.date.month == DateTime.now().month && day.date.year == DateTime.now().year);
       if (_selectedDayIndex == -1) {
@@ -61,7 +62,11 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  _onPinDidTap(Region region, List<Day> days) async {
+  _onRegionDidTap(RegionModel region){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => RegionDetailPage(region)));
+  }
+
+  _onPinDidTap(RegionModel region, List<DayModel> days) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
@@ -129,21 +134,18 @@ class _HomePageState extends State<HomePage> {
                 child: Text("ZONAOGGI", style: TextStyle(fontSize: 40, color: Colors.white, fontWeight: FontWeight.w900),),
               ),
 
-              FutureBuilder<List<void>>(
-                future: _req,
-                builder: (context, snapshot) {
-                  if(!snapshot.hasData || snapshot.data.length < 2)
-                    return Flexible(
-                      fit: FlexFit.tight,
-                      child: Center(child: CircularProgressIndicator())
-                    );
+              Flexible(
+                fit: FlexFit.tight,
+                child: FutureBuilder<List<void>>(
+                  future: _req,
+                  builder: (context, snapshot) {
+                    if(!snapshot.hasData || snapshot.data.length < 2)
+                      return Center(child: CircularProgressIndicator());
 
-                  List<Day> days = _managePinnedRegion(snapshot.data[0] as List<Day>, snapshot.data[1] as SharedPreferences);
-                  _selectTodayDate(days);
+                    List<DayModel> days = _managePinnedRegion(snapshot.data[0] as List<DayModel>, snapshot.data[1] as SharedPreferences);
+                    _selectTodayDate(days);
 
-                  return Flexible(
-                    fit: FlexFit.loose,
-                    child: Column(
+                    return Column(
                       mainAxisSize: MainAxisSize.max,
                       children: [
 
@@ -156,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                             padding: EdgeInsets.symmetric(horizontal: 10),
                             itemCount: days.length,
                             itemBuilder: (context, index){
-                              return DayWidget(
+                              return Day(
                                 day: days[index],
                                 selected: _selectedDayIndex == index,
                                 onTap: (){
@@ -178,9 +180,12 @@ class _HomePageState extends State<HomePage> {
                               padding: EdgeInsets.only(top: 20, bottom: 50, right: 10, left: 10),
                               itemCount: days[_selectedDayIndex].regions.length,
                               itemBuilder: (context, index){
-                                return RegionWidget(
+                                return Region(
                                   region: days[_selectedDayIndex].regions[index],
                                   isPinned: pinnedRegionId == days[_selectedDayIndex].regions[index].id,
+                                  onTap: (){
+                                    _onRegionDidTap(days[_selectedDayIndex].regions[index]);
+                                  },
                                   onTapPin: () {
                                     _onPinDidTap(days[_selectedDayIndex].regions[index], days);
                                   },
@@ -190,9 +195,9 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ],
-                    ),
-                  );
-                }
+                    );
+                  }
+                ),
               )
             ],
           ),
