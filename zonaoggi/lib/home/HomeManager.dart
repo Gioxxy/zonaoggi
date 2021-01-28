@@ -5,14 +5,14 @@ import 'package:zonaoggi/utils/Request.dart';
 import 'package:zonaoggi/utils/ResponseError.dart';
 
 class HomeManager {
-  Future<List<Day>> getDays({Function(List<Day>) onSuccess, Function(ResponseError) onError}){
-    Completer completer = Completer<List<Day>>();
+  Future<List<DayModel>> getDays({Function(List<DayModel>) onSuccess, Function(ResponseError) onError}){
+    Completer completer = Completer<List<DayModel>>();
 
     Request.get(
-      route: "zone",
+      route: "/zoneDev",
       onResponse: (response) {
         if(response.statusCode == 200){
-          List<Day> days = (response.body as List ?? List()).map((e) => Day.fromJson(e)).toList();
+          List<DayModel> days = (response.body as List ?? List()).map((e) => DayModel.fromJson(e)).toList();
           onSuccess?.call(days);
           completer.complete(days);
         } else {

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:zonaoggi/home/HomeModel.dart';
 
-class DayWidget extends StatelessWidget {
+class Day extends StatelessWidget {
 
-  Day day;
+  DayModel day;
   bool selected;
   Function onTap;
 
-  DayWidget({@required this.day, @required this.selected, Function this.onTap});
+  Day({@required this.day, @required this.selected, Function this.onTap});
 
   @override
   Widget build(BuildContext context) {

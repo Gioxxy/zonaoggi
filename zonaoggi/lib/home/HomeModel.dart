@@ -8,22 +8,22 @@ import 'dart:ui';
 
 import 'package:zonaoggi/utils/HexColor.dart';
 
-List<Day> homeModelFromJson(String str) => List<Day>.from(json.decode(str).map((x) => Day.fromJson(x)));
+List<DayModel> homeModelFromJson(String str) => List<DayModel>.from(json.decode(str).map((x) => DayModel.fromJson(x)));
 
-String homeModelToJson(List<Day> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+String homeModelToJson(List<DayModel> data) => json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
 
-class Day {
-  Day({
+class DayModel {
+  DayModel({
     this.date,
     this.regions,
   });
 
   DateTime date;
-  List<Region> regions;
+  List<RegionModel> regions;
 
-  factory Day.fromJson(Map<String, dynamic> json) => Day(
+  factory DayModel.fromJson(Map<String, dynamic> json) => DayModel(
     date: DateTime.parse(json["date"]),
-    regions: List<Region>.from(json["regions"].map((x) => Region.fromJson(x))),
+    regions: List<RegionModel>.from(json["regions"].map((x) => RegionModel.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
@@ -32,8 +32,8 @@ class Day {
   };
 }
 
-class Region {
-  Region({
+class RegionModel {
+  RegionModel({
     this.id,
     this.name,
     this.color,
@@ -47,7 +47,7 @@ class Region {
   String zoneName;
   String image;
 
-  factory Region.fromJson(Map<String, dynamic> json) => Region(
+  factory RegionModel.fromJson(Map<String, dynamic> json) => RegionModel(
     id: json["id"],
     name: json["name"],
     color: HexColor(json["color"]),
