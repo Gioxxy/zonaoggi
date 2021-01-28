@@ -2,6 +2,11 @@ import asyncio
 import datetime
 import json
 from pyppeteer import launch
+def toCamelCase(snake_str):
+    components = snake_str.split('-')
+    # We capitalize the first letter of each component except the first one
+    # with the 'title' method and join them together.
+    return components[0] + ''.join(x.title() for x in components[1:])
 
 async def main():
 	browser = await launch({
@@ -25,7 +30,7 @@ async def main():
 		for li in lis:
 			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
 			desc = await page.evaluate('(el) => el.children[1].textContent', li)
-			bianco.append({"icon": icon.replace("fas ", ""), "desc": desc})
+			bianco.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
 
 	giallo = []
 	if await page.querySelector('[color="giallo"]'):
@@ -34,7 +39,7 @@ async def main():
 		for li in lis:
 			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
 			desc = await page.evaluate('(el) => el.children[1].textContent', li)
-			giallo.append({"icon": icon.replace("fas ", ""), "desc": desc})
+			giallo.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
 
 	arancione = []
 	if await page.querySelector('[color="arancione"]'):
@@ -43,7 +48,7 @@ async def main():
 		for li in lis:
 			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
 			desc = await page.evaluate('(el) => el.children[1].textContent', li)
-			arancione.append({"icon": icon.replace("fas ", ""), "desc": desc})
+			arancione.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
 	
 	rosso = []
 	if await page.querySelector('[color="rosso"]'):
@@ -52,9 +57,29 @@ async def main():
 		for li in lis:
 			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
 			desc = await page.evaluate('(el) => el.children[1].textContent', li)
-			rosso.append({"icon": icon.replace("fas ", ""), "desc": desc})
+			rosso.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
 
-	res = {"bianca": bianco, "gialla": giallo, "arancione": arancione, "rossa": rosso}
+	res = {
+		"selfDeclaration": "https://www.interno.gov.it/sites/default/files/2020-10/modello_autodichiarazione_editabile_ottobre_2020.pdf",
+		"restrictions": [
+			{
+				"zoneName": "bianca",
+				"restrictions": bianco
+			},
+			{
+				"zoneName": "gialla",
+				"restrictions": giallo
+			},
+			{
+				"zoneName": "arancione",
+				"restrictions": arancione
+			},
+			{
+				"zoneName": "rossa",
+				"restrictions": rosso
+			},
+		]
+	}
 
 	f = open("restrictionsGrabberResult.json", "w", encoding='utf-8')
 	f.write(json.dumps(res, indent=2, ensure_ascii=False))
