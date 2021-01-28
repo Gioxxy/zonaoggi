@@ -69,6 +69,13 @@ class _HomePageState extends State<HomePage> {
   _onDayDidTap(int dayIndex){
     setState(() {
       _selectedDayIndex = dayIndex;
+      _listOpacity = 0;
+    });
+
+    Future.delayed(Duration(milliseconds: 300)).then((value){
+      setState(() {
+        _listOpacity = 1;
+      });
     });
   }
 
