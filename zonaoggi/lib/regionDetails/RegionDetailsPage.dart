@@ -1,8 +1,10 @@
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:zonaoggi/home/HomeModel.dart';
 import 'package:zonaoggi/regionDetails/RegionDetailsManager.dart';
 import 'package:zonaoggi/regionDetails/RestrictionsModel.dart';
+import 'package:zonaoggi/utils/ADManager.dart';
 import 'package:zonaoggi/utils/AppColors.dart';
 import 'package:zonaoggi/utils/widgets/BackButton.dart';
 
@@ -22,6 +24,18 @@ class RegionDetailPage extends StatefulWidget {
 class _RegionDetailPageState extends State<RegionDetailPage> {
 
   Future<RegionDetailModel> _req;
+  BannerAd _bannerAd;
+
+  BannerAd _buildBannerAd() {
+    return BannerAd(
+      adUnitId: AdManager.bannerAdUnitId,
+      size: AdSize.banner,
+      listener: (MobileAdEvent event) {
+        if (event == MobileAdEvent.loaded) {
+          _bannerAd..show();
+        }
+      });
+  }
 
   _onBackButtonDidTap(){
     Navigator.pop(context);
@@ -35,6 +49,15 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
   void initState() {
     super.initState();
     _req = widget.manager.getRestrictions();
+
+    FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
+    _bannerAd = _buildBannerAd()..load();
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   @override

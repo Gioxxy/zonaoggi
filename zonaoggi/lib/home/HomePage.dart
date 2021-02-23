@@ -28,8 +28,9 @@ class _HomePageState extends State<HomePage> {
 
   BannerAd _bannerAd;
   InterstitialAd _interstitialAd;
+  Function _onInterstitialAdClosed;
 
-  BannerAd buildBannerAd() {
+  BannerAd _buildBannerAd() {
     return BannerAd(
       adUnitId: AdManager.bannerAdUnitId,
       size: AdSize.banner,
@@ -40,10 +41,15 @@ class _HomePageState extends State<HomePage> {
       });
   }
 
-  InterstitialAd buildInterstitialAd(){
+  InterstitialAd _buildInterstitialAd(){
     return InterstitialAd(
       adUnitId: AdManager.interstitialAdUnitId,
-      listener: (MobileAdEvent event) {},
+      listener: (MobileAdEvent event) {
+        if(event == MobileAdEvent.closed){
+          _onInterstitialAdClosed?.call();
+          _onInterstitialAdClosed = null;
+        }
+      },
     );
   }
 
@@ -82,13 +88,20 @@ class _HomePageState extends State<HomePage> {
   _onRegionDidTap(RegionModel region) async {
     if (showInterstitialAd && await _interstitialAd.isLoaded()) {
       showInterstitialAd = false;
-      _interstitialAd.show();
-      _interstitialAd = buildInterstitialAd()..load();
+      await _bannerAd?.dispose();
+      await _interstitialAd?.show();
+      _interstitialAd = _buildInterstitialAd()..load();
+      _onInterstitialAdClosed = (){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => RegionDetailPage(region))).then((value){
+          _bannerAd = _buildBannerAd()..load();
+        });
+      };
     } else {
       showInterstitialAd = true;
+      Navigator.push(context, MaterialPageRoute(builder: (context) => RegionDetailPage(region))).then((value){
+        _bannerAd = _buildBannerAd()..load();
+      });
     }
-
-    Navigator.push(context, MaterialPageRoute(builder: (context) => RegionDetailPage(region)));
   }
 
   _onPinDidTap(RegionModel region, List<DayModel> days) async {
@@ -127,8 +140,8 @@ class _HomePageState extends State<HomePage> {
     ]);
 
     FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
-    _bannerAd = buildBannerAd()..load();
-    _interstitialAd = buildInterstitialAd()..load();
+    _bannerAd = _buildBannerAd()..load();
+    _interstitialAd = _buildInterstitialAd()..load();
   }
 
   @override
@@ -201,7 +214,6 @@ class _HomePageState extends State<HomePage> {
                             duration: Duration(milliseconds: 200),
                             opacity: _listOpacity,
                             child: ListView.builder(
-                              shrinkWrap: true,
                               physics: BouncingScrollPhysics(),
                               padding: EdgeInsets.only(top: 20, bottom: 50, right: 10, left: 10),
                               itemCount: days[_selectedDayIndex].regions.length,

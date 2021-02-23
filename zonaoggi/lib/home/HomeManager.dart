@@ -9,7 +9,7 @@ class HomeManager {
     Completer completer = Completer<List<DayModel>>();
 
     Request.get(
-      route: "/zoneDev",
+      route: "/zone",
       onResponse: (response) {
         if(response.statusCode == 200){
           List<DayModel> days = (response.body as List ?? List()).map((e) => DayModel.fromJson(e)).toList();
