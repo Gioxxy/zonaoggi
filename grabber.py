@@ -5,19 +5,19 @@ from pyppeteer import launch
 
 def monthToNum(month):
     return {
-            'Gennaio': 1,
-            'Febbraio': 2,
-            'Marzo': 3,
-            'Aprile': 4,
-            'Maggio': 5,
-            'Giugno': 6,
-            'Luglio': 7,
-            'Agosto': 8,
-            'Settembre': 9, 
-            'Ottobre': 10,
-            'Novembre': 11,
-            'Dicembre': 12
-    }[month]
+            'gennaio': 1,
+            'febbraio': 2,
+            'marzo': 3,
+            'aprile': 4,
+            'maggio': 5,
+            'giugno': 6,
+            'luglio': 7,
+            'agosto': 8,
+            'settembre': 9, 
+            'ottobre': 10,
+            'novembre': 11,
+            'dicembre': 12
+    }[month.lower()]
 
 async def getDate(page, index, days):
 	spans = await page.querySelectorAll('[aria-label="' + str(index) + ' / ' + str(days) + '"] div span')
@@ -87,27 +87,27 @@ async def main():
 		day = {
 			"date": await getDate(page, i, days),
 			"regions": [
-				await getRegion(page, "abruzzo", 1, "abruzzo.svg"),
-				await getRegion(page, "basilicata", 2, "basilicata.svg"),
-				await getRegion(page, "bolzano", 3, "bolzano.svg"),
-				await getRegion(page, "calabria", 4, "calabria.svg"),
-				await getRegion(page, "campania", 5, "campania.svg"),
-				await getRegion(page, "emiliaromagna", 6, "emilia.svg"),
-				await getRegion(page, "friuliveneziagiulia", 7, "friuli.svg"),
-				await getRegion(page, "lazio", 8, "lazio.svg"),
-				await getRegion(page, "liguria", 9, "liguria.svg"),
-				await getRegion(page, "lombardia", 10, "lombardia.svg"),
-				await getRegion(page, "marche", 11, "marche.svg"),
-				await getRegion(page, "molise", 12, "molise.svg"),
-				await getRegion(page, "piemonte", 13, "piemonte.svg"),
-				await getRegion(page, "puglia", 14, "puglia.svg"),
-				await getRegion(page, "sardegna", 15, "sardegna.svg"),
-				await getRegion(page, "sicilia", 16, "sicilia.svg"),
-				await getRegion(page, "toscana", 17, "toscana.svg"),
-				await getRegion(page, "trento", 18, "trento.svg"),
-				await getRegion(page, "umbria", 19, "umbria.svg"),
-				await getRegion(page, "valledaosta", 20, "valledaosta.svg"),
-				await getRegion(page, "veneto", 21, "veneto.svg")
+				await getRegion(page, "IT-65", 1, "abruzzo.svg"),
+				await getRegion(page, "IT-77", 2, "basilicata.svg"),
+				await getRegion(page, "IT-32", 3, "bolzano.svg"),
+				await getRegion(page, "IT-78", 4, "calabria.svg"),
+				await getRegion(page, "IT-72", 5, "campania.svg"),
+				await getRegion(page, "IT-45", 6, "emilia.svg"),
+				await getRegion(page, "IT-36", 7, "friuli.svg"),
+				await getRegion(page, "IT-62", 8, "lazio.svg"),
+				await getRegion(page, "IT-42", 9, "liguria.svg"),
+				await getRegion(page, "IT-25", 10, "lombardia.svg"),
+				await getRegion(page, "IT-57", 11, "marche.svg"),
+				await getRegion(page, "IT-67", 12, "molise.svg"),
+				await getRegion(page, "IT-21", 13, "piemonte.svg"),
+				await getRegion(page, "IT-75", 14, "puglia.svg"),
+				await getRegion(page, "IT-88", 15, "sardegna.svg"),
+				await getRegion(page, "IT-82", 16, "sicilia.svg"),
+				await getRegion(page, "IT-52", 17, "toscana.svg"),
+				await getRegion(page, "IT-32-T", 18, "trento.svg"),
+				await getRegion(page, "IT-55", 19, "umbria.svg"),
+				await getRegion(page, "IT-23", 20, "valledaosta.svg"),
+				await getRegion(page, "IT-34", 21, "veneto.svg")
 			]
 		}
 
