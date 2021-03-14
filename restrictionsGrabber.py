@@ -10,7 +10,7 @@ def toCamelCase(snake_str):
 
 async def main():
 	browser = await launch({
-		'headless': True,
+		'headless': False,
 		'defaultViewport':  {
 				'width': 1680,
 				'height': 1050
@@ -24,39 +24,50 @@ async def main():
 	days = len(await page.querySelectorAll('.swiper-slide'))
 
 	bianco = []
-	if await page.querySelector('[color="bianco"]'):
-		await page.tap('[color="bianco"]')
-		lis = await page.querySelectorAll('.css-16qr889-Item')
-		for li in lis:
-			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-			desc = await page.evaluate('(el) => el.children[1].textContent', li)
-			bianco.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
+	# if await page.querySelector('[color="bianco"]'):
+	# 	await page.tap('[color="bianco"]')
+	# 	lis = await page.querySelectorAll('.css-16qr889-Item')
+	# 	for li in lis:
+	# 		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
+	# 		desc = await page.evaluate('(el) => el.children[1].textContent', li)
+	# 		bianco.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
 
 	giallo = []
-	if await page.querySelector('[color="giallo"]'):
-		await page.tap('[color="giallo"]')
-		lis = await page.querySelectorAll('.css-16qr889-Item')
-		for li in lis:
-			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-			desc = await page.evaluate('(el) => el.children[1].textContent', li)
-			giallo.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
+	# if await page.querySelector('[color="giallo"]'):
+	# 	await page.tap('[color="giallo"]')
+	# 	lis = await page.querySelectorAll('.css-16qr889-Item')
+	# 	for li in lis:
+	# 		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
+	# 		desc = await page.evaluate('(el) => el.children[1].textContent', li)
+	# 		giallo.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
 
 	arancione = []
-	if await page.querySelector('[color="arancione"]'):
-		await page.tap('[color="arancione"]')
-		lis = await page.querySelectorAll('.css-16qr889-Item')
-		for li in lis:
-			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-			desc = await page.evaluate('(el) => el.children[1].textContent', li)
-			arancione.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
+	# if await page.querySelector('[color="arancione"]'):
+	# 	await page.tap('[color="arancione"]')
+	# 	lis = await page.querySelectorAll('.css-16qr889-Item')
+	# 	for li in lis:
+	# 		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
+	# 		desc = await page.evaluate('(el) => el.children[1].textContent', li)
+	# 		arancione.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
+
+	arancioneRafforzato = []
+	# if await page.querySelector('[color="arancione_rafforzato"]'):
+	# 	await page.tap('[color="arancione_rafforzato"]')
+	# 	lis = await page.querySelectorAll('.css-16qr889-Item')
+	# 	for li in lis:
+	# 		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
+	# 		desc = await page.evaluate('(el) => el.children[1].textContent', li)
+	# 		arancioneRafforzato.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
 	
 	rosso = []
 	if await page.querySelector('[color="rosso"]'):
 		await page.tap('[color="rosso"]')
-		lis = await page.querySelectorAll('.css-16qr889-Item')
+		lis = await page.querySelectorAll('.css-gqrsw0-Wrapper .css-m2eu65-List .css-16qr889-Item')
 		for li in lis:
 			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
 			desc = await page.evaluate('(el) => el.children[1].textContent', li)
+			if desc == "Novità":
+				desc = await page.evaluate('(el) => el.children[2].textContent', li)
 			rosso.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
 
 	res = {

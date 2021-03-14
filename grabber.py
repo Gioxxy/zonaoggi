@@ -29,10 +29,7 @@ async def getZoneName(page, regionId):
 	region = await page.querySelector('#' + regionId)
 	color = await page.evaluate('(element) => element.getAttribute("color")', region)
 
-	if color == "giallo":
-		color = "gialla"
-	elif color == "rosso":
-		color = "rossa"
+	color = color.replace("giallo", "gialla").replace("rosso", "rossa").replace("bianco", "bianca").replace("_", " ")
 	
 	return color
 
@@ -52,7 +49,9 @@ def getColor(zoneName):
 		return "#FF9800"
 	elif zoneName == "rossa":
 		return "#F44336"
-	return "#FFFFFF"
+	elif zoneName == "arancione rafforzato":
+		return "#FF5722"
+	return "#FCFCFC"
 
 async def getRegion(page, regionId, id, image):
 	zoneName = await getZoneName(page, regionId)
