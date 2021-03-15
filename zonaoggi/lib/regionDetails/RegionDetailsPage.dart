@@ -1,5 +1,5 @@
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:zonaoggi/home/HomeModel.dart';
 import 'package:zonaoggi/regionDetails/RegionDetailsManager.dart';
@@ -30,11 +30,8 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
     return BannerAd(
       adUnitId: AdManager.bannerAdUnitId,
       size: AdSize.banner,
-      listener: (MobileAdEvent event) {
-        if (event == MobileAdEvent.loaded) {
-          _bannerAd..show();
-        }
-      });
+      request: AdRequest(),
+      listener: AdListener());
   }
 
   _onBackButtonDidTap(){
@@ -50,7 +47,6 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
     super.initState();
     _req = widget.manager.getRestrictions();
 
-    FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
     _bannerAd = _buildBannerAd()..load();
   }
 
@@ -131,6 +127,15 @@ class _RegionDetailPageState extends State<RegionDetailPage> {
               ),
             ),
 
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                alignment: Alignment.center,
+                child: AdWidget(ad: _bannerAd,),
+                width: _bannerAd.size.width.toDouble(),
+                height: _bannerAd.size.height.toDouble(),
+              ),
+            ),
 
             ZOBackButton(
               onTap: (){

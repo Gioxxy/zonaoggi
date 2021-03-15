@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:zonaoggi/regionDetails/RestrictionsModel.dart';
+import 'package:zonaoggi/utils/FontAwesomeIconsHelper.dart';
 
 class Restriction extends StatelessWidget {
 
@@ -18,7 +19,7 @@ class Restriction extends StatelessWidget {
         children: [
           Container(
               width: 25,
-              child: Center(child: FaIcon(FontAwesomeIcons.fromName(model.icon), color: iconColor,))
+              child: Center(child: FaIcon(FontAwesomeIconsHelper.fromName(model.icon), color: iconColor,))
           ),
           SizedBox(width: 20,),
           Flexible(child: Text(model.desc, style: TextStyle(color: Colors.white, fontSize: 18),)),

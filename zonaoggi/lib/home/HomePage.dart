@@ -1,5 +1,5 @@
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zonaoggi/home/widgets/Day.dart';
 import 'package:zonaoggi/regionDetails/RegionDetailsPage.dart';
@@ -34,22 +34,20 @@ class _HomePageState extends State<HomePage> {
     return BannerAd(
       adUnitId: AdManager.bannerAdUnitId,
       size: AdSize.banner,
-      listener: (MobileAdEvent event) {
-        if (event == MobileAdEvent.loaded) {
-          _bannerAd..show();
-        }
-      });
+      request: AdRequest(),
+      listener: AdListener());
   }
 
   InterstitialAd _buildInterstitialAd(){
     return InterstitialAd(
       adUnitId: AdManager.interstitialAdUnitId,
-      listener: (MobileAdEvent event) {
-        if(event == MobileAdEvent.closed){
+      request: AdRequest(),
+      listener: AdListener(
+        onAdClosed: (ad){
           _onInterstitialAdClosed?.call();
           _onInterstitialAdClosed = null;
         }
-      },
+      ),
     );
   }
 
@@ -86,7 +84,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onRegionDidTap(RegionModel region) async {
-    if (showInterstitialAd && await _interstitialAd.isLoaded()) {
+    bool loaded = await _interstitialAd.isLoaded();
+    print("isLoded " + loaded.toString());
+    if (showInterstitialAd && _interstitialAd.isLoaded()){
       showInterstitialAd = false;
       await _bannerAd?.dispose();
       await _interstitialAd?.show();
@@ -132,14 +132,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Future<void> initState() {
+  void initState() {
     super.initState();
     _req = Future.wait([
       widget.manager.getDays(),
       SharedPreferences.getInstance()
     ]);
 
-    FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
     _bannerAd = _buildBannerAd()..load();
     _interstitialAd = _buildInterstitialAd()..load();
   }
@@ -165,78 +164,92 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         backgroundColor: AppColors.primary,
         body: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                child: Text("ZONAOGGI", style: TextStyle(fontSize: 40, color: Colors.white, fontWeight: FontWeight.w900),),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                    child: Text("ZONAOGGI", style: TextStyle(fontSize: 40, color: Colors.white, fontWeight: FontWeight.w900),),
+                  ),
+
+                  Flexible(
+                    fit: FlexFit.tight,
+                    child: FutureBuilder<List<void>>(
+                      future: _req,
+                      builder: (context, snapshot) {
+                        if(!snapshot.hasData || snapshot.data.length < 2)
+                          return Center(child: CircularProgressIndicator());
+
+                        List<DayModel> days = _managePinnedRegion(snapshot.data[0] as List<DayModel>, snapshot.data[1] as SharedPreferences);
+                        _selectTodayDate(days);
+
+                        return Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+
+                            Container(
+                              height: 70,
+                              child: ListView.builder(
+                                controller: ScrollController(initialScrollOffset: (130 * _selectedDayIndex).toDouble()),
+                                scrollDirection: Axis.horizontal,
+                                physics: BouncingScrollPhysics(),
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                itemCount: days.length,
+                                itemBuilder: (context, index){
+                                  return Day(
+                                    day: days[index],
+                                    selected: _selectedDayIndex == index,
+                                    onTap: (){
+                                      _onDayDidTap(index);
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+
+                            Flexible(
+                              fit: FlexFit.loose,
+                              child: AnimatedOpacity(
+                                duration: Duration(milliseconds: 200),
+                                opacity: _listOpacity,
+                                child: ListView.builder(
+                                  physics: BouncingScrollPhysics(),
+                                  padding: EdgeInsets.only(top: 20, bottom: 50, right: 10, left: 10),
+                                  itemCount: days[_selectedDayIndex].regions.length,
+                                  itemBuilder: (context, index){
+                                    return Region(
+                                      region: days[_selectedDayIndex].regions[index],
+                                      isPinned: _pinnedRegionId == days[_selectedDayIndex].regions[index].id,
+                                      onTap: (){
+                                        _onRegionDidTap(days[_selectedDayIndex].regions[index]);
+                                      },
+                                      onTapPin: () {
+                                        _onPinDidTap(days[_selectedDayIndex].regions[index], days);
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    ),
+                  )
+                ],
               ),
 
-              Flexible(
-                fit: FlexFit.tight,
-                child: FutureBuilder<List<void>>(
-                  future: _req,
-                  builder: (context, snapshot) {
-                    if(!snapshot.hasData || snapshot.data.length < 2)
-                      return Center(child: CircularProgressIndicator());
-
-                    List<DayModel> days = _managePinnedRegion(snapshot.data[0] as List<DayModel>, snapshot.data[1] as SharedPreferences);
-                    _selectTodayDate(days);
-
-                    return Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-
-                        Container(
-                          height: 70,
-                          child: ListView.builder(
-                            controller: ScrollController(initialScrollOffset: (130 * _selectedDayIndex).toDouble()),
-                            scrollDirection: Axis.horizontal,
-                            physics: BouncingScrollPhysics(),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            itemCount: days.length,
-                            itemBuilder: (context, index){
-                              return Day(
-                                day: days[index],
-                                selected: _selectedDayIndex == index,
-                                onTap: (){
-                                  _onDayDidTap(index);
-                                },
-                              );
-                            },
-                          ),
-                        ),
-
-                        Flexible(
-                          fit: FlexFit.loose,
-                          child: AnimatedOpacity(
-                            duration: Duration(milliseconds: 200),
-                            opacity: _listOpacity,
-                            child: ListView.builder(
-                              physics: BouncingScrollPhysics(),
-                              padding: EdgeInsets.only(top: 20, bottom: 50, right: 10, left: 10),
-                              itemCount: days[_selectedDayIndex].regions.length,
-                              itemBuilder: (context, index){
-                                return Region(
-                                  region: days[_selectedDayIndex].regions[index],
-                                  isPinned: _pinnedRegionId == days[_selectedDayIndex].regions[index].id,
-                                  onTap: (){
-                                    _onRegionDidTap(days[_selectedDayIndex].regions[index]);
-                                  },
-                                  onTapPin: () {
-                                    _onPinDidTap(days[_selectedDayIndex].regions[index], days);
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  }
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: AdWidget(ad: _bannerAd,),
+                  width: _bannerAd.size.width.toDouble(),
+                  height: _bannerAd.size.height.toDouble(),
                 ),
-              )
+              ),
             ],
           ),
         ),
