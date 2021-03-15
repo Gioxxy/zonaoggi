@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 import json
+import re
 from pyppeteer import launch
 
 def toCamelCase(snake_str):
@@ -32,8 +33,12 @@ async def main():
 	for zone in zones:
 		measures = []
 		for measure in zone["measures"]:
-			measures.append({ "icon": toCamelCase(measure["icon"]), "desc": measure["description"].replace("[Autocertificazione](/autocertificazione-digitale)", "Autocertificazione").replace("**", "") })
-		restrictions.append({ "zoneName": zone["name"].replace("_", " "), "restrictions": measures })
+			description = measure["description"].replace("[Autocertificazione](/autocertificazione-digitale)", "Autocertificazione").replace("**", "").replace("[", "").replace("]", "")
+			description = re.sub(r'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))''', '', description)
+			description = description.replace("()", "")
+			measures.append({ "icon": toCamelCase(measure["icon"]), "desc": description })
+		name = zone["name"].replace("bianco", "bianca").replace("rosso", "rossa").replace("giallo", "gialla").replace("_", " ")
+		restrictions.append({ "zoneName": name, "restrictions": measures })
 
 	res = {
 		"selfDeclaration": "https://www.interno.gov.it/sites/default/files/2020-10/modello_autodichiarazione_editabile_ottobre_2020.pdf",
