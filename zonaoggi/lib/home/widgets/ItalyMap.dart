@@ -17,10 +17,6 @@ class ItalyMap extends StatelessWidget {
     for (RegionModel region in regions) {
       var el = path.query("//path[@title='${region.name.replaceFirst("'", "")}']").elements().first;
       el.attributes.addAll({"fill": "#"+region.color.value.toRadixString(16)});
-      /*debugPrint("""
-          @SvgPath('${el.attributes["d"]}')
-          static Path get ${region.name} => _\$MapSvgData_${region.name};
-          """);*/
     }
     return path.query("//svg").get();
   }
