@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zonaoggi/home/widgets/Day.dart';
+import 'package:zonaoggi/home/widgets/ItalyMap.dart';
 import 'package:zonaoggi/regionDetails/RegionDetailsPage.dart';
 import 'package:zonaoggi/utils/ADManager.dart';
 import 'package:zonaoggi/utils/AppColors.dart';
+import 'package:zonaoggi/utils/ItalyMapData.dart';
 
 import 'HomeManager.dart';
 import 'HomeModel.dart';
@@ -214,23 +217,7 @@ class _HomePageState extends State<HomePage> {
                               child: AnimatedOpacity(
                                 duration: Duration(milliseconds: 200),
                                 opacity: _listOpacity,
-                                child: ListView.builder(
-                                  physics: BouncingScrollPhysics(),
-                                  padding: EdgeInsets.only(top: 20, bottom: 50, right: 10, left: 10),
-                                  itemCount: days[_selectedDayIndex].regions.length,
-                                  itemBuilder: (context, index){
-                                    return Region(
-                                      region: days[_selectedDayIndex].regions[index],
-                                      isPinned: _pinnedRegionId == days[_selectedDayIndex].regions[index].id,
-                                      onTap: (){
-                                        _onRegionDidTap(days[_selectedDayIndex].regions[index]);
-                                      },
-                                      onTapPin: () {
-                                        _onPinDidTap(days[_selectedDayIndex].regions[index], days);
-                                      },
-                                    );
-                                  },
-                                ),
+                                child: ItalyMap(),
                               ),
                             ),
                           ],
