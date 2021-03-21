@@ -14,7 +14,7 @@ class Response {
 
 class Request {
   
-  static  String _server = "www.trustmyads.com";
+  static  String _server = "zonaoggi.web.app";
 
   static Future<Response> get({String route = "", Map<String, String> params, Function(Response) onResponse}) async {
 
@@ -23,13 +23,11 @@ class Request {
     }
     route += ".json";
 
-    String req = _server + route;
+    Uri url = Uri.https(_server, route, params);
 
-    Uri url = Uri.https(_server, "/zonaoggi" + route, params);
-
-    Logger.log("SEND REQ " + req);
+    Logger.log("SEND REQ " + url.host + url.path + url.query);
     final res = await http.get(url, headers: {'Content-Type': 'application/json'});
-    Logger.logResponse(request: req, response: res);
+    Logger.logResponse(request: url.host + url.path + url.query, response: res);
 
     Response response = Response(res.statusCode, json.decode(utf8.decode(res.bodyBytes)));
 
@@ -48,11 +46,11 @@ class Request {
     }
     route += ".json";
 
-    Uri url = Uri.https(_server, "/zonaoggi" + route, params);
+    Uri url = Uri.https(_server, route, params);
 
-    Logger.log("SEND REQ " + url.toString());
+    Logger.log("SEND REQ " + url.host + url.path + url.query);
     final res = await http.post(url, headers: {'Content-Type': 'application/json'}, body: json.encode(body));
-    Logger.logResponse(request: url.toString(), body: json.encode(body), response: res);
+    Logger.logResponse(request: url.host + url.path + url.query, body: json.encode(body), response: res);
 
     Response response = Response(res.statusCode, json.decode(utf8.decode(res.bodyBytes)));
 
