@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:zonaoggi/home/widgets/Day.dart';
+import 'package:zonaoggi/home/widgets/ItalyMap.dart';
 import 'package:zonaoggi/regionDetails/RegionDetailsPage.dart';
 import 'package:zonaoggi/utils/ADManager.dart';
 import 'package:zonaoggi/utils/AppColors.dart';
@@ -24,7 +26,8 @@ class _HomePageState extends State<HomePage> {
   int _selectedDayIndex;
   int _pinnedRegionId;
   double _listOpacity = 1;
-  bool showInterstitialAd = true;
+  bool _showInterstitialAd = true;
+  bool _showMap = false;
 
   BannerAd _bannerAd;
   InterstitialAd _interstitialAd;
@@ -86,8 +89,8 @@ class _HomePageState extends State<HomePage> {
   _onRegionDidTap(RegionModel region) async {
     bool loaded = await _interstitialAd.isLoaded();
     print("isLoded " + loaded.toString());
-    if (showInterstitialAd && _interstitialAd.isLoaded()){
-      showInterstitialAd = false;
+    if (_showInterstitialAd && _interstitialAd.isLoaded()){
+      _showInterstitialAd = false;
       await _bannerAd?.dispose();
       await _interstitialAd?.show();
       _interstitialAd = _buildInterstitialAd()..load();
@@ -97,7 +100,7 @@ class _HomePageState extends State<HomePage> {
         });
       };
     } else {
-      showInterstitialAd = true;
+      _showInterstitialAd = true;
       Navigator.push(context, MaterialPageRoute(builder: (context) => RegionDetailPage(region))).then((value){
         _bannerAd = _buildBannerAd()..load();
       });
@@ -129,6 +132,12 @@ class _HomePageState extends State<HomePage> {
         });
       });
 
+  }
+  
+  _onMapDidTap(){
+    setState(() {
+      _showMap = !_showMap;
+    });
   }
 
   @override
@@ -169,9 +178,21 @@ class _HomePageState extends State<HomePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-                    child: Text("ZONAOGGI", style: TextStyle(fontSize: 40, color: Colors.white, fontWeight: FontWeight.w900),),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                        child: Text("ZONAOGGI", style: TextStyle(fontSize: 40, color: Colors.white, fontWeight: FontWeight.w900),),
+                      ),
+                      
+                      IconButton(
+                        icon: Icon(_showMap ? Icons.view_list_rounded : Icons.map_rounded, color: Colors.white,),
+                        onPressed: (){
+                          _onMapDidTap();
+                        }
+                      )
+                    ],
                   ),
 
                   Flexible(
@@ -214,7 +235,8 @@ class _HomePageState extends State<HomePage> {
                               child: AnimatedOpacity(
                                 duration: Duration(milliseconds: 200),
                                 opacity: _listOpacity,
-                                child: ListView.builder(
+                                child: _showMap ? ItalyMap(regions: days[_selectedDayIndex].regions,) :
+                                ListView.builder(
                                   physics: BouncingScrollPhysics(),
                                   padding: EdgeInsets.only(top: 20, bottom: 50, right: 10, left: 10),
                                   itemCount: days[_selectedDayIndex].regions.length,
