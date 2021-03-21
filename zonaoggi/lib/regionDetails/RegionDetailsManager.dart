@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:zonaoggi/home/HomeModel.dart';
 import 'package:zonaoggi/regionDetails/RestrictionsModel.dart';
 import 'package:zonaoggi/utils/Request.dart';
 import 'package:zonaoggi/utils/ResponseError.dart';

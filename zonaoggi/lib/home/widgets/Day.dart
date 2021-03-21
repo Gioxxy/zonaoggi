@@ -8,7 +8,7 @@ class Day extends StatelessWidget {
   bool selected;
   Function onTap;
 
-  Day({@required this.day, @required this.selected, Function this.onTap});
+  Day({@required this.day, @required this.selected, this.onTap});
 
   @override
   Widget build(BuildContext context) {

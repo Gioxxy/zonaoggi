@@ -12,7 +12,7 @@ class HomeManager {
       route: "/zone",
       onResponse: (response) {
         if(response.statusCode == 200){
-          List<DayModel> days = (response.body as List ?? List()).map((e) => DayModel.fromJson(e)).toList();
+          List<DayModel> days = (response.body as List ?? []).map((e) => DayModel.fromJson(e)).toList();
           onSuccess?.call(days);
           completer.complete(days);
         } else {

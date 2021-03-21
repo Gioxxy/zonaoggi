@@ -1,7 +1,9 @@
 import asyncio
 import datetime
 import json
+import re
 from pyppeteer import launch
+
 def toCamelCase(snake_str):
     components = snake_str.split('-')
     # We capitalize the first letter of each component except the first one
@@ -21,75 +23,26 @@ async def main():
 	await page.goto('https://covidzone.info')
 	# accept cookies
 	await page.tap('#rcc-confirm-button')
-	days = len(await page.querySelectorAll('.swiper-slide'))
+	data = await page.querySelector('#__NEXT_DATA__')
+	jsonData = json.loads(await page.evaluate('(el) => el.textContent', data))
 
-	bianco = []
-	# if await page.querySelector('[color="bianco"]'):
-	# 	await page.tap('[color="bianco"]')
-	# 	lis = await page.querySelectorAll('.css-16qr889-Item')
-	# 	for li in lis:
-	# 		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-	# 		desc = await page.evaluate('(el) => el.children[1].textContent', li)
-	# 		bianco.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
+	zones = jsonData["props"]["pageProps"]["mapProps"]["colors"]
 
-	giallo = []
-	# if await page.querySelector('[color="giallo"]'):
-	# 	await page.tap('[color="giallo"]')
-	# 	lis = await page.querySelectorAll('.css-16qr889-Item')
-	# 	for li in lis:
-	# 		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-	# 		desc = await page.evaluate('(el) => el.children[1].textContent', li)
-	# 		giallo.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
+	restrictions = []
 
-	arancione = []
-	# if await page.querySelector('[color="arancione"]'):
-	# 	await page.tap('[color="arancione"]')
-	# 	lis = await page.querySelectorAll('.css-16qr889-Item')
-	# 	for li in lis:
-	# 		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-	# 		desc = await page.evaluate('(el) => el.children[1].textContent', li)
-	# 		arancione.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
-
-	arancioneRafforzato = []
-	# if await page.querySelector('[color="arancione_rafforzato"]'):
-	# 	await page.tap('[color="arancione_rafforzato"]')
-	# 	lis = await page.querySelectorAll('.css-16qr889-Item')
-	# 	for li in lis:
-	# 		icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-	# 		desc = await page.evaluate('(el) => el.children[1].textContent', li)
-	# 		arancioneRafforzato.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
-	
-	rosso = []
-	if await page.querySelector('[color="rosso"]'):
-		await page.tap('[color="rosso"]')
-		lis = await page.querySelectorAll('.css-gqrsw0-Wrapper .css-m2eu65-List .css-16qr889-Item')
-		for li in lis:
-			icon = await page.evaluate('(el) => el.children[0].getAttribute("class")', li)
-			desc = await page.evaluate('(el) => el.children[1].textContent', li)
-			if desc == "Novità":
-				desc = await page.evaluate('(el) => el.children[2].textContent', li)
-			rosso.append({"icon": toCamelCase(icon.replace("fas fa-", "")), "desc": desc})
+	for zone in zones:
+		measures = []
+		for measure in zone["measures"]:
+			description = measure["description"].replace("[Autocertificazione](/autocertificazione-digitale)", "Autocertificazione").replace("**", "").replace("[", "").replace("]", "")
+			description = re.sub(r'''(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))''', '', description)
+			description = description.replace("()", "")
+			measures.append({ "icon": toCamelCase(measure["icon"]), "desc": description })
+		name = zone["name"].replace("bianco", "bianca").replace("rosso", "rossa").replace("giallo", "gialla").replace("_", " ")
+		restrictions.append({ "zoneName": name, "restrictions": measures })
 
 	res = {
 		"selfDeclaration": "https://www.interno.gov.it/sites/default/files/2020-10/modello_autodichiarazione_editabile_ottobre_2020.pdf",
-		"restrictions": [
-			{
-				"zoneName": "bianca",
-				"restrictions": bianco
-			},
-			{
-				"zoneName": "gialla",
-				"restrictions": giallo
-			},
-			{
-				"zoneName": "arancione",
-				"restrictions": arancione
-			},
-			{
-				"zoneName": "rossa",
-				"restrictions": rosso
-			},
-		]
+		"restrictions": restrictions
 	}
 
 	f = open("restrictionsGrabberResult.json", "w", encoding='utf-8')
